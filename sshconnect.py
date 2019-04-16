@@ -26,6 +26,7 @@ splash = sshshell.recv(65535)
 time.sleep(1) #Sleep to account for latency 
 print(splash.decode())
 
+#Basic pre-loop configs
 sshshell.send('enable\n') #Enable router
 sshshell.send('terminal length 0\n') #Infinte terminal length
 sshshell.send('conf t\n')
@@ -58,12 +59,14 @@ config_list = {
 	'1': basic_config,
 	'2': service_security,
 }
+
+
 #Command loop
 while True:
 	#Interface
 	print()
 	print("#######################################################") 
-	print("Pick a thing: Q or 'quit' for quit") 
+	print("Pick a thing: Q or 'quit' to exit") 
 	print("1: Basic Settings 2: Service Security")
 	print("#######################################################")	
 	
@@ -73,12 +76,7 @@ while True:
 		ssh.close()
 		break
 	config_list[cmand]()
-	
-	#Send commands, This is old. 
-	#sshshell.send(cmand) #Our command
-	#sshshell.send('\n')#New line
-
-	
+		
 	#Decode and print outputs
 	output = sshshell.recv(65535)
 	printout = output.decode(encoding='UTF-8')
