@@ -27,7 +27,7 @@ def switch_interfaceConf():
         switchINT = ('interface range') +  switchPrompt
         print("The interfaces shutting down is: " + switchPrompt)
         
-        sshshell.send('switchINT\n')
+        sshshell.send(switchINT)
         sshshell.send('shutdown\n')
         sshshell.send('exit\n')
         time.sleep(1) #Wait to buffer
