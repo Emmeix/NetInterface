@@ -8,6 +8,9 @@ import paramiko
 import time
 import getpass
 import os
+import colorama 
+from colorama import Fore, Style 
+from confTemplates import *
 
 #Creds
 servIP = "192.168.1.1"#input("IP: ")
@@ -18,6 +21,7 @@ passwd = "cisco123"#getpass.getpass("Password: ")#input("Password: ")
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()) #Auto add keys
 ssh.connect(servIP, port=22, username=usrname, password=passwd) #Connection formating
+print(Fore.GREEN + "Connection made to ", servIP)
 
 #Make shell
 #Show the login splash/banner
@@ -30,29 +34,9 @@ print(splash.decode())
 sshshell.send('enable\n') #Enable router
 sshshell.send('terminal length 0\n') #Infinte terminal length
 sshshell.send('conf t\n')
-
-def basic_config():
-		sshshell.send('no ip domain-lookup\n')
-		sshshell.send('service password-encryption\n')
-		#Banner
-		banner = input("Banner: ")
-		bannerformat = ("banner motd #" + banner + "#\n")
-		sshshell.send(bannerformat)
-		#Line con
-		sshshell.send('line con 0\n')
-		sshshell.send('logging synchronous\n')
-
-		sshshell.send('exit\n')
-		time.sleep(1) #Wait for buffer
-
-def service_security():
-		sshshell.send('no cdp run\n')
-		sshshell.send('no ip bootp server\n')
-		sshshell.send('no ip arp proxy\n')
-		sshshell.send('no ip http server\n')
-		sshshell.send('no ip icmp redirect\n')
-		sshshell.send('exit\n')
-		time.sleep(1)
+print(Fore.GREEN + "Terminal enabled")
+print(Fore.GREEN + "Terminal length 0")
+print(Fore.GREEN + "Config mode")
 
 #Dictionary binds configs to numbers
 config_list = {
@@ -65,13 +49,13 @@ config_list = {
 while True:
 	#Interface
 	print()
-	print("#######################################################") 
-	print("Pick a thing: Q or 'quit' to exit") 
-	print("1: Basic Settings 2: Service Security")
-	print("#######################################################")	
+	print(Fore.YELLOW +"#######################################################") 
+	print(Fore.GREEN +"Pick a thing: Q or 'quit' to exit") 
+	print(Fore.CYAN +"1: Basic Settings 2: Service Security")
+	print(Fore.YELLOW +"#######################################################")	
 	
 	#User command
-	cmand = input("Command: ")
+	cmand = input("#: ")
 	if cmand == 'quit' or cmand == 'q':
 		ssh.close()
 		break
@@ -86,5 +70,3 @@ while True:
 	print_file = output.decode(encoding='UTF-8')
 	file_save = open('output.txt', 'a')
 	file_save.write(print_file)
-
-	
