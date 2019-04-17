@@ -23,7 +23,7 @@ def service_security():
 		time.sleep(1) #Wait for buffer
 
 def switch_interfaceConf():
-        switchPrompt = input("Wich interfaces do you want to shut down? ")
+        switchPrompt = input("Wich interfaces do you want to shut down? F0/1-24 & G0/0-1 is available")
         switchINT = ('interface range') +  switchPrompt
         print("The interfaces shutting down is: " + switchPrompt)
         
