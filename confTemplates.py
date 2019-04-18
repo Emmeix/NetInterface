@@ -59,3 +59,17 @@ def switch_interfaceSHUT():
                 time.sleep(1) #Wait to buffer
 
 
+def interface_IPconf():
+			interfaceQ = input("Enter the interface you want to configure: ")
+			interfaceA = ('interface') + " " + interfaceQ
+			print(interfaceA)
+			#sshshell.send(interfaceA)
+			#time.sleep(.5)
+
+			ipQ = input("Enter wanted IP address with a proper netmask: ")
+			ipA = ('ip address') + " " + ipQ
+			print(ipA)
+			#sshshell.send(ipA)
+			#time.sleep(.5)
+
+
