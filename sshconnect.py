@@ -31,13 +31,7 @@ def basic_config():
 		time.sleep(1) #Wait for buffer
 
 def service_security():
-		sshshell.send('no cdp run\n')
-		sshshell.send('no ip bootp server\n')
-		sshshell.send('no ip arp proxy\n')
-		sshshell.send('no ip http server\n')
-		sshshell.send('no ip icmp redirect\n')
-		time.sleep(1) #Wait for buffer
-
+	
 		def int_parse():
 				sshshell.send('do show ip int br\n')
 				time.sleep(.5)
@@ -58,12 +52,19 @@ def service_security():
 						if "down" in line:
 							intlist.append(line.split(' ', 1)[0])
 							intout = ("Interface " + intlist[incr])
-							time.sleep(1)
+							time.sleep(.3)
 							print(intout)
 							sshshell.send(str(intout))
 							sshshell.send('\n')
-							#sshshell.send('switchport mode access\n')
-							sshshell.send('shut\n')
+							#switchMAC = input("Set MAC security to sticky Y/N? ")
+							#if switchMAC == "y":
+							sshshell.send('switchport port-security\n')
+							sshshell.send('switchport port-security mac-address sticky\n')
+							sshshell.send('switchport port-security maximum 2\n')
+							#if switchMAC == "n":
+							#	continue					    							
+						    #sshshell.send('switchport mode access\n')
+							#sshshell.send('shut\n')
 							#print(printout)
 							incr += 1
 				return
@@ -71,12 +72,30 @@ def service_security():
 				print('\n')
 				open(".parsefile", 'w').close() #clear parsefile
 
+		#output = sshshell.recv(65535)
+		#printout = output.decode(encoding='UTF-8')
+
+		#print(printout)
+		print(Fore.MAGENTA + "Interfaces in the Down state will be detected")
+		print(Style.RESET_ALL)
 		portsec = input("Shut down unused ports? Y/N:  ")
+		if portsec == "quit" or portsec == 'q':
+			return
 		if portsec == "y":
 			int_parse()
 		else:
-			sshshell.send("exit\n")
-			return
+			sshshell.send("\n")
+			time.sleep(.2)
+			
+		print(Fore.MAGENTA +"Shuting down processes...")
+		sshshell.send('no cdp run\n')
+		sshshell.send('no ip bootp server\n')
+		sshshell.send('no ip arp proxy\n')
+		sshshell.send('no ip http server\n')
+		sshshell.send('no ip icmp redirect\n')
+		sshshell.send('do show ip int br\n')
+		#sshshell.send("exit\n")
+		time.sleep(1) #Wait for buffer
 
 def ospf_setup():
 		
@@ -139,8 +158,8 @@ passwd = "cisco123"#getpass.getpass("Password: ")#input("Password: ")
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()) #Auto add keys
 ssh.connect(servIP, port=22, username=usrname, password=passwd) #Connection formating
-print(Fore.GREEN + "Connection made to ", servIP)
-
+print(Fore.MAGENTA + "Connection made to ", servIP)
+print(Style.RESET_ALL)
 #Make shell
 #Show the login splash/banner
 sshshell = ssh.invoke_shell()
@@ -152,10 +171,12 @@ print(splash.decode())
 sshshell.send('enable\n') #Enable router
 sshshell.send('terminal length 0\n') #Infinte terminal length
 sshshell.send('conf t\n')
-print(Fore.GREEN + "Terminal enabled")
-print(Fore.GREEN + "Terminal length 0")
-print(Fore.GREEN + "Config mode")
-
+print(Fore.YELLOW + "#####################")
+print(Fore.YELLOW + "# " + Fore.GREEN +"Terminal enabled" + Fore.YELLOW +"  #")
+print(Fore.YELLOW + "# " + Fore.GREEN + "Terminal length 0" + Fore.YELLOW + " #")
+print(Fore.YELLOW + "# " + Fore.GREEN + "Config mode" + Fore.YELLOW +"       #")
+print(Fore.YELLOW + "#####################")
+print(Style.RESET_ALL)
 #Dictionary binds configs to numbers
 config_list = {
 	'1': basic_config,
@@ -170,7 +191,7 @@ while True:
 	print()
 	print(Fore.YELLOW +"#######################################################") 
 	print(Fore.GREEN +"Pick a thing: Q or 'quit' to exit") 
-	print(Fore.CYAN +"1: Basic Settings 2: Service Security 3: OSPF")
+	print(Fore.CYAN +"1: Basic Settings 2: Port/Service Security 3: OSPF")
 	print(Fore.YELLOW +"#######################################################")	
 	print(Style.RESET_ALL)
 
