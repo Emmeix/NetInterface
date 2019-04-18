@@ -121,17 +121,11 @@ def ospf_setup():
 			if ospfNav == "2":
 				sshshell.send("do show ip route\n")
 				time.sleep(.5)
-				#print(printout)
-		
-			#else:
-			#	break
-			print("you are here")
-			time.sleep(.5)
-
+			
+			time.sleep(.5)	
 			output = sshshell.recv(65535)
 			printout = output.decode(encoding='UTF-8')
-			print("you are not here")
-			#print(printout)
+
 
 
 
