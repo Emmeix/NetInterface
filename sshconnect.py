@@ -13,8 +13,8 @@ import colorama
 from colorama import Fore, Style 
 from confTemplates import *
 
+#Time and timestamps
 tl = time.localtime()
-#sttime = datetime.datetime.fromtimestamp(ts).strftime('%Y%m%d_%H:%M:%S - ')
 timeStamp=time.strftime("%a %H:%M:%S \n", tl)
 
 def basic_config():
@@ -43,8 +43,10 @@ def service_security():
 				parse_print = open(".parsefile", 'w')
 				parse_print.write(parse_file)
 				parse_print.close()
-				#Open cachefile to read
+				
+				#Open prasefile to read
 				parse_read = open(".parsefile", 'r')
+				
 				#For every line in parsefile look for string, print interface
 				intlist = []
 				incr = 0
@@ -63,8 +65,8 @@ def service_security():
 							sshshell.send('switchport port-security maximum 2\n')
 							#if switchMAC == "n":
 							#	continue					    							
-						    #sshshell.send('switchport mode access\n')
-							#sshshell.send('shut\n')
+						    sshshell.send('switchport mode access\n')
+							sshshell.send('shut\n')
 							#print(printout)
 							incr += 1
 				return
@@ -72,10 +74,7 @@ def service_security():
 				print('\n')
 				open(".parsefile", 'w').close() #clear parsefile
 
-		#output = sshshell.recv(65535)
-		#printout = output.decode(encoding='UTF-8')
 
-		#print(printout)
 		print(Fore.MAGENTA + "Interfaces in the Down state will be detected")
 		print(Style.RESET_ALL)
 		portsec = input("Shut down unused ports? Y/N:  ")
@@ -87,7 +86,7 @@ def service_security():
 			sshshell.send("\n")
 			time.sleep(.2)
 			
-		print(Fore.MAGENTA +"Shuting down processes...")
+		print(Fore.MAGENTA + "Shuting down processes...")
 		sshshell.send('no cdp run\n')
 		sshshell.send('no ip bootp server\n')
 		sshshell.send('no ip arp proxy\n')
@@ -115,8 +114,6 @@ def ospf_setup():
 		sshshell.send('\n')
 		time.sleep(.5)
 
-		inttable = ("show ip int br\n")	
-
 		print()
 		print(Fore.YELLOW +"#######################################################") 
 		print(Fore.GREEN +"Pick a thing: Q or 'quit' to exit") 
@@ -124,7 +121,6 @@ def ospf_setup():
 		print(Fore.YELLOW +"#######################################################")	
 		print(Style.RESET_ALL)
 		
-		#time.sleep(2)
 		output = sshshell.recv(65535)
 		printout = output.decode(encoding='UTF-8')
 		
@@ -146,9 +142,6 @@ def ospf_setup():
 			printout = output.decode(encoding='UTF-8')
 
 
-
-
-
 #Creds
 servIP = "192.168.1.1"#input("IP: ")
 usrname = "user"#input("Username: ")
@@ -160,6 +153,7 @@ ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()) #Auto add keys
 ssh.connect(servIP, port=22, username=usrname, password=passwd) #Connection formating
 print(Fore.MAGENTA + "Connection made to ", servIP)
 print(Style.RESET_ALL)
+
 #Make shell
 #Show the login splash/banner
 sshshell = ssh.invoke_shell()
@@ -177,6 +171,7 @@ print(Fore.YELLOW + "# " + Fore.GREEN + "Terminal length 0" + Fore.YELLOW + " #"
 print(Fore.YELLOW + "# " + Fore.GREEN + "Config mode" + Fore.YELLOW +"       #")
 print(Fore.YELLOW + "#####################")
 print(Style.RESET_ALL)
+
 #Dictionary binds configs to numbers
 config_list = {
 	'1': basic_config,
@@ -187,6 +182,7 @@ config_list = {
 
 #Command loop
 while True:
+	
 	#Interface
 	print()
 	print(Fore.YELLOW +"#######################################################") 
