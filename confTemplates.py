@@ -73,3 +73,80 @@ def interface_IPconf():
 			#time.sleep(.5)
 
 
+def AAA():
+        print("###Setup for AAA with radius authentication###")
+        aaaQ = input("Add username /w encrypted password, Y/N? ")
+        if aaaQ == 'y' or aaaQ == 'Y':
+            aaaU = input("Please enter username: ")
+            aaaP = input("Please enter password, it will be encrypted using Type 9 hasing algorithm: ")
+            #sshshell.send('username ' + aaaU + ' algorithm-type scrypt secret ' + aaaP)
+            #sshshell.send('\n')
+            #time-sleep(.5)
+            print("username " + aaaU + " algorithm-type scrypt secret " + aaaP)
+        else:
+            return
+        
+            
+        print("aaa new model")
+        print("aaa authentication login default group radius none")
+        #sshshell.send('aaa new model\n')
+        #sshshell.send('aaa authentication login default group radius none\n')
+        print("###Do not forget to validate Radius configurations before proceeding###")
+        
+        radiusU = input("Please enter the name of Radius server to enter Radius-config, used for this device only: ")
+        print("radius server " + radiusU)
+        #sshshell.send('radius server ' + radiusU + '\n')
+        #time-sleep(1)
+
+        radiusS = input("Please enter IP address of the Radius server: ")
+        print("address ipv4 " + radiusS + " " + "auth-port 1812 acct-port 1813")
+        #sshshell.send('address ipv4 ' + radiusS + 'auth-port 1812 acct-port 1813' + '\n')
+        #time.sleep(1)
+
+        radiusK = input("Please enter the Key/password for the radius server: ")
+        #sshshell.send('key ' + radiusK + '\n')
+        print("key " + radiusK)
+
+
+
+
+
+def IProute():
+		print()
+		print(Fore.YELLOW +"#######################################################") 
+		print(Fore.GREEN +"Pick a option for setting route: Q or 'quit' to exit") 
+		print(Fore.CYAN +"1: Static 2: Default static")
+		print(Fore.YELLOW +"#######################################################")	
+		print(Style.RESET_ALL)
+		
+		#output = sshshell.recv(65535)
+		#printout = output.decode(encoding='UTF-8')
+		
+		
+		while True:
+			#print(printout +'\n')
+			routeNav = input("1 or 2?: ")
+			if routeNav == 'quit' or routeNav == 'q':
+				quit()		
+			if routeNav == "1":
+				routeS = input("Enter wanted destination address for static route with proper netmask: ")
+				routeI = input("Enter exit inteface: ")
+				print("ip route " + routeS + " " + routeI)
+				#sshshell.send('ip route ' + routeS + " " + routeI '\n')
+				#time.sleep(1)
+
+				#sshshell.send("\n")
+				#time.sleep(.5)
+				break
+			if routeNav == "2":
+				routeS2 = input("Enter exit interface for default static route: ")
+				print("ip route 0.0.0.0 0.0.0.0" + " " + routeS2)
+				#sshshell.send('ip route 0.0.0.0 0.0.0.0' + " " + routeS2 + '\n')
+				#time.sleep(.5)
+				#print(printout)
+				break
+			else:
+				break
+
+			#output = sshshell.recv(65535)
+			#printout = output.decode(encoding='UTF-8')
