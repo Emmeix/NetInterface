@@ -67,22 +67,29 @@ def interface_IPconf():
 			#time.sleep(.5)
 
 			ipQ = input("Enter wanted IP address with a proper netmask: ")
-			ipA = ('ip address') + " " + ipQ
+			ipA = 'ip address ' + ipQ
 			print(ipA)
 			#sshshell.send(ipA)
 			#time.sleep(.5)
 
 
 def AAA():
+        output = sshshell.recv(65535)
+		printout = output.decode(encoding='UTF-8')
+
         print("###Setup for AAA with radius authentication###")
         aaaQ = input("Add username /w encrypted password, Y/N? ")
         if aaaQ == 'y' or aaaQ == 'Y':
             aaaU = input("Please enter username: ")
             aaaP = input("Please enter password, it will be encrypted using Type 9 hasing algorithm: ")
-            #sshshell.send('username ' + aaaU + ' algorithm-type scrypt secret ' + aaaP)
+            aaaUPformat = "username " + aaaU + " algorithm-type scrypt secret " + aaaP + "\n"
+            sshshell.send(aaaUPformat)
+            
             #sshshell.send('\n')
-            #time-sleep(.5)
-            print("username " + aaaU + " algorithm-type scrypt secret " + aaaP)
+            #sshshell.send('username ' + aaaU + ' algorithm-type scrypt secret ' + aaaP)
+            time-sleep(.5)
+            print(printout)
+            #print("username " + aaaU + " algorithm-type scrypt secret " + aaaP)
         else:
             return
         
@@ -94,19 +101,30 @@ def AAA():
         print("###Do not forget to validate Radius configurations before proceeding###")
         
         radiusU = input("Please enter the name of Radius server to enter Radius-config, used for this device only: ")
-        print("radius server " + radiusU)
+        #print("radius server " + radiusU)
+        radiusUformat = "radius server " + radiusU + "\n"
+        sshshell.send(radiusUformat)
+
         #sshshell.send('radius server ' + radiusU + '\n')
-        #time-sleep(1)
+        #time-sleep(0.3)
+        print(printout)
 
         radiusS = input("Please enter IP address of the Radius server: ")
         print("address ipv4 " + radiusS + " " + "auth-port 1812 acct-port 1813")
+        radiusSformat = "address ipv4 " + radiusS + " " + "auth-port 1812 acct-port 1813\n"
+        sshshell.send(radiusSformat)
+        
         #sshshell.send('address ipv4 ' + radiusS + 'auth-port 1812 acct-port 1813' + '\n')
-        #time.sleep(1)
+        time.sleep(0.3)
+        print(printout)
 
         radiusK = input("Please enter the Key/password for the radius server: ")
+        radiusKformat = "key " + radiusK
+        sshshell.send(radiusKformat)
         #sshshell.send('key ' + radiusK + '\n')
         print("key " + radiusK)
-
+        time.sleep(0.3)
+        print(printout)
 
 
 
@@ -132,18 +150,23 @@ def IProute():
 				routeS = input("Enter wanted destination address for static route with proper netmask: ")
 				routeI = input("Enter exit inteface: ")
 				print("ip route " + routeS + " " + routeI)
+				routeSIformat = "ip route " + routeS + " " + routeI + "\n"
+				sshshell.send(routeSIformat)
 				#sshshell.send('ip route ' + routeS + " " + routeI '\n')
 				#time.sleep(1)
 
 				#sshshell.send("\n")
-				#time.sleep(.5)
+				time.sleep(.5)
+				print(printout)
 				break
 			if routeNav == "2":
 				routeS2 = input("Enter exit interface for default static route: ")
 				print("ip route 0.0.0.0 0.0.0.0" + " " + routeS2)
+				routeS2format = "ip route 0.0.0.0 0.0.0.0 " + routeS2 + "\n"
+				sshshell.send(routeS2format)
 				#sshshell.send('ip route 0.0.0.0 0.0.0.0' + " " + routeS2 + '\n')
-				#time.sleep(.5)
-				#print(printout)
+				time.sleep(.5)
+				print(printout)
 				break
 			else:
 				break
