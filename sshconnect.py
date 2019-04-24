@@ -11,11 +11,51 @@ import getpass
 import os
 import colorama 
 from colorama import Fore, Style 
-
+from tqdm import tqdm
 
 #Time and timestamps
 tl = time.localtime()
 timeStamp=time.strftime("%a %H:%M:%S \n", tl)
+
+def int_table():
+	sshshell.send("do show ip int br\n")
+
+def r_table():
+	sshshell.send("do show ip route\n")
+
+def run_conf():
+	sshshell.send("do show run\n")
+	for i in tqdm(range(30)):
+		time.sleep(.1)
+
+def ip_prot():
+	sshshell.send("do show ip prot\n")
+
+def sh_vlan():
+	sshshell.send("do show vlan br\n")
+
+def sh_trunk():
+	sshshell.send("do show int trunk\n")
+
+def sh_eth():
+	sshshell.send("do show etherchannel br\n")	
+
+def ospf_neigh():
+	sshshell.send("do show ip ospf neigh\n")
+
+def arp_table():
+	sshshell.send("do show arp\n")
+
+def sh_user():
+	sshshell.send("do show users\n")
+
+def sh_dhcp():
+	sshshell.send("do show dhcp server\n")
+	sshshell.send("do show dhcp lease\n")
+
+def sh_ntp():
+	sshshell.send("do show ntp status\n")
+	sshshell.send("do show ntp asso\n")
 
 def basic_config():
 	
@@ -31,17 +71,36 @@ def basic_config():
 		time.sleep(1) #Wait for buffer
 		ipconf = input("Set ip addresses? Y/N ")
 		if ipconf == "y":
+				sshshell.send("do show ip int br\n")
+				print(Fore.MAGENTA+"Fetching table..")
+				print(Style.RESET_ALL)
+				for i in tqdm(range(60)):
+					time.sleep(.1)
+	
+				output = sshshell.recv(65535)
+				printout = output.decode(encoding='UTF-8')
+				print(printout)
 				while True:
 					interfaceQ = input("Enter the interface you want to configure (q) to quit: ")
 					if interfaceQ == "q":
 						break
 					else:
-						interfaceA = "interface " + interfaceQ
-						print(interfaceA)
+						interfaceA = "interface " + interfaceQ + "\n"
+						sshshell.send(interfaceA)
 
 						ipQ = input("Enter wanted IP address with a proper netmask: ")
-						ipA = 'ip address ' + ipQ
-						print(ipA)
+						ipA = 'ip address ' + ipQ + "\n"
+						sshshell.send(ipA)
+						sshshell.send("no sh\n")
+						sshshell.send("exit\n")
+						time.sleep(1)
+						output = sshshell.recv(65535)
+						printout = output.decode(encoding='UTF-8')
+						print(printout)
+						
+						print_file = output.decode(encoding='UTF-8')
+						file_save = open('output.txt', 'a+')
+						file_save.write('\n' + timeStamp + print_file + '\n')
 
 def service_security():
 	
@@ -67,7 +126,7 @@ def service_security():
 					if "down" in line:
 						intlist.append(line.split(' ', 1)[0])
 						intout = ("Interface " + intlist[incr])
-						time.sleep(.3)
+						time.sleep(.2)
 						print(intout)
 						sshshell.send(str(intout))
 						sshshell.send('\n')
@@ -76,7 +135,8 @@ def service_security():
 						sshshell.send('switchport port-security maximum 2\n')					    							
 						sshshell.send('switchport mode access\n')
 						sshshell.send('shut\n')
-				return
+						incr += 1
+				return 
 
 				print('\n')
 				open(".parsefile", 'w').close() #clear parsefile
@@ -102,14 +162,26 @@ def service_security():
 		sshshell.send('no ip icmp redirect\n')
 		sshshell.send('do show ip int br\n')
 		time.sleep(1) #Wait for buffer
+		
+		#output = sshshell.recv(65535)
+		#printout = output.decode(encoding='UTF-8')
+		#print(printout)
+		
+		#print_file = output.decode(encoding='UTF-8')
+		#file_save = open('output.txt', 'a+')
+		#file_save.write('\n' + timeStamp + print_file + '\n')
 
 def ospf_setup():
 		
 
-		print('\n')
+		#print('\n')
+		sshshell.send("\n")
+		time.sleep(1)
 		open(".parsefile", 'w').close() #clear parsefile
 
-		output = sshshell.recv(65535)
+		output = sshshell.recv(2000000)
+		printout = output.decode(encoding='UTF-8')
+		print(printout)
 		print_file = output.decode(encoding='UTF-8')
 		file_save = open('output.txt', 'a+')
 		file_save.write('\n' + timeStamp + print_file + '\n')
@@ -135,7 +207,7 @@ def ospf_setup():
 			print(printout +'\n')
 			ospfNav = input("OSPF# ")
 			if ospfNav == 'quit' or ospfNav == 'q':
-				quit()		
+				break		
 			if ospfNav == "1":
 				sshshell.send("do show ip int br\n")
 				time.sleep(.5)
@@ -148,8 +220,8 @@ def ospf_setup():
 			printout = output.decode(encoding='UTF-8')
 
 def AAA():
-		output = sshshell.recv(65535)
-		printout = output.decode(encoding='UTF-8')
+		
+		#printout = output.decode(encoding='UTF-8')
 		print("###Setup for AAA with radius authentication###")
 		aaaQ = input("Add username /w encrypted password, Y/N? ")
 		if aaaQ == 'y' or aaaQ == 'Y':
@@ -157,7 +229,9 @@ def AAA():
 			aaaP = input("Please enter password, it will be encrypted using Type 9 hasing algorithm: ")
 			aaaUPformat = "username " + aaaU + " algorithm-type scrypt secret " + aaaP + "\n"
 			sshshell.send(aaaUPformat)
-			timesleep(.5)
+			time.sleep(.5)
+			output = sshshell.recv(65535)
+			printout = output.decode(encoding='UTF-8')
 			print(printout)
 		else:
 			return
@@ -169,26 +243,32 @@ def AAA():
 		radiusU = input("Please enter the name of Radius server to enter Radius-config, used for this device only: ")
 		radiusUformat = "radius server " + radiusU + "\n"
 		sshshell.send(radiusUformat)
+		output = sshshell.recv(65535)
+		printout = output.decode(encoding='UTF-8')
 		print(printout)
 
 		radiusS = input("Please enter IP address of the Radius server: ")
 		print("address ipv4 " + radiusS + " " + "auth-port 1812 acct-port 1813")
 		radiusSformat = "address ipv4 " + radiusS + " " + "auth-port 1812 acct-port 1813\n"
-		sshshell.send(radiusSformat)
-		        
+		sshshell.send(radiusSformat)		        
 		time.sleep(0.3)
+		output = sshshell.recv(65535)
+		printout = output.decode(encoding='UTF-8')
 		print(printout)
+
 
 		radiusK = input("Please enter the Key/password for the radius server: ")
 		radiusKformat = "key " + radiusK
 		sshshell.send(radiusKformat)
 		print("key " + radiusK)
 		time.sleep(0.3)
+		output = sshshell.recv(65535)
+		printout = output.decode(encoding='UTF-8')
 		print(printout)
 
 def IProute():
-		output = sshshell.recv(65535)
-		printout = output.decode(encoding='UTF-8')
+		#output = sshshell.recv(65535)
+		#printout = output.decode(encoding='UTF-8')
 		
 		print()
 		print(Fore.YELLOW +"#######################################################") 
@@ -206,34 +286,46 @@ def IProute():
 				routeSIformat = "ip route " + routeS + " " + routeI + "\n"
 				sshshell.send(routeSIformat)
 				time.sleep(.5)
+				output = sshshell.recv(65535)
+				printout = output.decode(encoding='UTF-8')
+				print(printout)
 				break
+
 			if routeNav == "2":
 				time.sleep(1)
 				routeS2 = input("Enter exit interface for default static route: ")
 				routeS2format = "ip route 0.0.0.0 0.0.0.0 " + routeS2 + "\n"
 				sshshell.send(routeS2format)
 				time.sleep(.5)
+				output = sshshell.recv(65535)
+				printout = output.decode(encoding='UTF-8')
+				print(printout)
 				break
+			
 			else:
 				break
-
-			output = sshshell.recv(65535)
-			printout = output.decode(encoding='UTF-8')
 
 def int_IPconf():
 		while True:
 			interfaceQ = input("Enter the interface you want to configure (q) to quit: ")
 			if interfaceQ == "q":
-				break
+				return
 			else:
 				interfaceA = "interface " + interfaceQ
-				print(interfaceA)
+				sshshell.send(interfaceA)
+				sshshell.send("\n")
 				ipQ = input("Enter wanted IP address with a proper netmask: ")
-				ipA = 'ip address ' + ipQ
-				print(ipA)
+				ipA = 'ip address ' + ipQ + "\n"
+				sshshell.send(ipA)
+				sshshell.send("exit\n")
+				time.sleep(.3)
+				output = sshshell.recv(65535)
+				printout = output.decode(encoding='UTF-8')
+				print(printout)
+
 
 #Creds
-servIP = "192.168.1.2"#input("IP: ")
+servIP = "192.168.1.1"#input("IP: ")
 usrname = "user"#input("Username: ")
 passwd = "cisco123"#getpass.getpass("Password: ")#input("Password: ")
 
@@ -248,7 +340,7 @@ print(Style.RESET_ALL)
 #Show the login splash/banner
 sshshell = ssh.invoke_shell()
 splash = sshshell.recv(65535)
-printout = splash.decode(encoding='UTF-8')
+splashp = splash.decode(encoding='UTF-8')
 time.sleep(1) #Sleep to account for latency 
 
 #Basic pre-loop configs
@@ -257,13 +349,17 @@ sshshell.send('terminal length 0\n') #Infinte terminal length
 sshshell.send('conf t\n')
 time.sleep(1)
 
+
 print(Fore.YELLOW + "#####################")
 print(Fore.YELLOW + "# " + Fore.GREEN +"Terminal enabled" + Fore.YELLOW +"  #")
 print(Fore.YELLOW + "# " + Fore.GREEN + "Terminal length 0" + Fore.YELLOW + " #")
 print(Fore.YELLOW + "# " + Fore.GREEN + "Config mode" + Fore.YELLOW +"       #")
 print(Fore.YELLOW + "#####################")
 print(Style.RESET_ALL)
-print(printout)
+print(splashp)
+splash = sshshell.recv(65535)
+splashp = splash.decode(encoding='UTF-8')
+#print(splashp)
 
 #Dictionary binds configs to numbers
 config_list = {
@@ -273,18 +369,35 @@ config_list = {
 	'4': AAA,
 	'5': IProute,
 	'6': int_IPconf,
+	'i': int_table,
+	'r': r_table,
+	'c': run_conf,
+	'p': ip_prot,
+	't': sh_trunk,
+	'e': sh_eth,
+	'v': sh_vlan,
+	'o': ospf_neigh,
+	'a': arp_table,
+	'u': sh_user,
+	'd': sh_dhcp,
+	'n': sh_ntp,
 }
 
 
 #Command loop
 while True:
+	
 	#Interface
 	print()
-	print(Fore.YELLOW +"#######################################################") 
+	print(Fore.YELLOW +"####################################################################") 
 	print(Fore.GREEN +"Pick a thing: Q or 'quit' to exit") 
-	print(Fore.CYAN +"1: Basic Settings 2: Port/Service Security 3: OSPF")
-	print(Fore.CYAN +"4: AAA            5: Routing               6: IP config")
-	print(Fore.YELLOW +"#######################################################")	
+	print(Fore.CYAN +"1: Basic Settings     2: Port/Service Security 3: OSPF")
+	print(Fore.CYAN +"4: AAA                5: Routing               6: IP config")
+	print(Fore.CYAN +"I: Interface table    R: Routing table         C: Running-config" )
+	print(Fore.CYAN +"P: Routing Protocols  T: Show trunks           E: Show etherchannels")
+	print(Fore.CYAN +"V: Show vlans         O: OSPF neighbors        A: Arp table")
+	print(Fore.CYAN +"U: Show users         D: Show DHCP             N: Show NTP")
+	print(Fore.YELLOW +"####################################################################")	
 	print(Style.RESET_ALL)
 
 	#User command
@@ -297,6 +410,8 @@ while True:
 
 		
 	#Decode and print outputs
+	sshshell.send("\n")
+	time.sleep(.1)
 	output = sshshell.recv(65535)
 	printout = output.decode(encoding='UTF-8')
 	print(printout)
