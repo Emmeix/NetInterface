@@ -173,3 +173,11 @@ def IProute():
 
 			#output = sshshell.recv(65535)
 			#printout = output.decode(encoding='UTF-8')
+
+
+
+def hostnames():
+		hostn = input("What hostname for the device do you wish to set? ")
+		#print("hostname " + hostn)
+		sshshell.send('hostname ' + hostn)
+		time.sleep(1)
