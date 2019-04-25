@@ -181,3 +181,80 @@ def hostnames():
 		#print("hostname " + hostn)
 		sshshell.send('hostname ' + hostn)
 		time.sleep(1)
+
+
+
+
+
+def trunk_conf():
+	
+	#sshshell.send("do show ip int br\n")
+	#output = sshshell.recv(65535)
+	#printout = output.decode(encoding='UTF-8')
+	#print(printout)-
+
+	etherc = input("Make etherchannel? Y/N ") 
+	if etherc == "y":
+		erange = input("Enter interface range: ")
+		erangeformat = "int range " + erange + "\n"
+		#sshshell.send(erangeformat)
+		print(erangeformat)
+		protchoice = input("LACP(1) or PAgP(2) ")
+		if protchoice == "1": #LACP config
+			#sshshell.send("shut\n")
+			print("shut")
+
+		if protchoice == "2": # PAgP config
+			#sshshell.send("shut\n")
+			print("shut")
+
+		else:
+			quit()
+
+		#output = sshshell.recv(65535)
+		#printout = output.decode(encoding='UTF-8')
+		#print(printout)-
+		#print_file = output.decode(encoding='UTF-8')
+		#file_save = open('output.txt', 'a+')
+		#file_save.write('\n' + timeStamp + print_file + '\n')
+
+	else:
+		tchoice = input("Single(1) or multiple(2) interfaces? ")
+		if tchoice == "1":
+			trunki = input("Input single interface for trunk: ")
+			trunkiformat = "int " + trunki + "\n"
+			#sshshell.send(trunkiformat)
+			#sshshell.send("shut\n")
+			print(trunkiformat)
+			print("shut")
+			#sshshell.send("switchport mode trunk\n")
+			print("switchport mode trunk\n")
+			nvlan = input("Native VLAN(number) for trunk: ")
+			nvlanformat = "switchport mode trunk native vlan " + nvlan + "\n"
+			#sshshell.send(nvlanformat)
+			print(nvlanformat)
+			#sshshell.send("no sh\n")
+			print("no sh\n")
+		if tchoice == "2":
+			mtrunki = input("Enter interface range: ")
+			mtrunkiformat = "int range " + mtrunki + "\n"
+			#sshshell.send(mtrunkiformat)
+			#sshshell.send("shut\n")
+			print(mtrunkiformat)
+			print("shut\n")
+			#sshshell.send("switchport mode trunk\n")
+			mnvlan = input("Native VLAN(number) for trunk: ")
+			mnvlanformat = "switchport mode trunk native vlan " + mnvlan + "\n"
+			#sshshell.send(mnvlanformat)
+			print(mnvlanformat)
+			#sshshell.send("no sh\n")
+			print("no sh")
+		else:
+			quit()
+
+		#output = sshshell.recv(65535)
+		#printout = output.decode(encoding='UTF-8')
+		#print(printout)-
+		#print_file = output.decode(encoding='UTF-8')
+		#file_save = open('output.txt', 'a+')
+		#file_save.write('\n' + timeStamp + print_file + '\n')

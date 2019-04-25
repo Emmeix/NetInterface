@@ -57,6 +57,12 @@ def sh_ntp():
 	sshshell.send("do show ntp status\n")
 	sshshell.send("do show ntp asso\n")
 
+def hostnames():
+	hostn = input("What hostname for the device do you wish to set? ")
+	hostformat = "hostname " + hostn + "\n"
+	sshshell.send(hostformat)
+	time.sleep(.3)
+
 def basic_config():
 	
 		sshshell.send('no ip domain-lookup\n')
@@ -101,6 +107,23 @@ def basic_config():
 						print_file = output.decode(encoding='UTF-8')
 						file_save = open('output.txt', 'a+')
 						file_save.write('\n' + timeStamp + print_file + '\n')
+		
+		hname = input("Set hostname? Y/N")
+		if hname == "y":
+			hostn = input("What hostname for the device do you wish to set? ")
+			hnameformat = "hostname " + hostn + "\n"
+			sshshell.send(hnameformat)
+			time.sleep(.3)
+
+			output = sshshell.recv(65535)
+			printout = output.decode(encoding='UTF-8')
+			print(printout)
+					
+			print_file = output.decode(encoding='UTF-8')
+			file_save = open('output.txt', 'a+')
+			file_save.write('\n' + timeStamp + print_file + '\n')
+		else:
+			return
 
 def service_security():
 	
@@ -173,8 +196,6 @@ def service_security():
 
 def ospf_setup():
 		
-
-		#print('\n')
 		sshshell.send("\n")
 		time.sleep(1)
 		open(".parsefile", 'w').close() #clear parsefile
@@ -223,6 +244,7 @@ def AAA():
 		
 		#printout = output.decode(encoding='UTF-8')
 		print("###Setup for AAA with radius authentication###")
+		print("\n")
 		aaaQ = input("Add username /w encrypted password, Y/N? ")
 		if aaaQ == 'y' or aaaQ == 'Y':
 			aaaU = input("Please enter username: ")
@@ -240,6 +262,7 @@ def AAA():
 		print("aaa new model")
 		print("aaa authentication login default group radius none")
 		print("###Do not forget to validate Radius configurations before proceeding###")
+		print("\n")
 		radiusU = input("Please enter the name of Radius server to enter Radius-config, used for this device only: ")
 		radiusUformat = "radius server " + radiusU + "\n"
 		sshshell.send(radiusUformat)
@@ -381,6 +404,7 @@ config_list = {
 	'u': sh_user,
 	'd': sh_dhcp,
 	'n': sh_ntp,
+	'h': hostnames,
 }
 
 
@@ -397,6 +421,7 @@ while True:
 	print(Fore.CYAN +"P: Routing Protocols  T: Show trunks           E: Show etherchannels")
 	print(Fore.CYAN +"V: Show vlans         O: OSPF neighbors        A: Arp table")
 	print(Fore.CYAN +"U: Show users         D: Show DHCP             N: Show NTP")
+	print(Fore.CYAN +"H: Hostname")
 	print(Fore.YELLOW +"####################################################################")	
 	print(Style.RESET_ALL)
 
