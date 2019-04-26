@@ -48,16 +48,30 @@ def switch_interfaceConf():
             if switchMAC == "n":
                 return
 
-def switch_interfaceSHUT():
-                switchPrompt = input("Wich interfaces do you want to shut down? F0/1-24 & G0/1-2 is available: ")
-                switchINT = ('interface range ') +  switchPrompt
-                print("The interfaces shutting down is: " + switchPrompt)        
-                sshshell.send('\n')
-                sshshell.send(switchINT)
-                sshshell.send('\n')
-                sshshell.send('shutdown\n')
-                time.sleep(1) #Wait to buffer
-
+def int_SHUT():
+	sshshell.send("do show ip int br\n")
+	print(Fore.MAGENTA+"Fetching table..")
+	print(Style.RESET_ALL)
+	for i in tqdm(range(10)):
+		time.sleep(.1)
+	output = sshshell.recv(65535)
+	printout = output.decode(encoding='UTF-8')
+	print(printout)
+	intchoice = input("Single(1) or multiple interfaces(2)? ")
+	if intchoice == (1):
+		switchPrompt = input("Enter interface: ")
+		switchINT = ('interface ') +  switchPrompt
+		print("The interface shutting down is: " + switchPrompt + '\n')
+		sshshell.send(switchINT)
+		sshshell.send('shutdown\n')
+		time.sleep(1) #Wait to buffer
+	if intchoice == "2":
+		switchPrompt = input("Enter range: ")
+		switchINT = ('interface range ') +  switchPrompt
+		print("The interfaces shutting down is: " + switchPrompt + '\n')
+		sshshell.send(switchINT)
+		sshshell.send('shutdown\n')
+		time.sleep(1) #Wait to buffer
 
 def interface_IPconf():
 			interfaceQ = input("Enter the interface you want to configure: ")

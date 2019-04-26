@@ -108,7 +108,7 @@ def basic_config():
 						file_save = open('output.txt', 'a+')
 						file_save.write('\n' + timeStamp + print_file + '\n')
 		
-		hname = input("Set hostname? Y/N")
+		hname = input("Set hostname? Y/N ")
 		if hname == "y":
 			hostn = input("What hostname for the device do you wish to set? ")
 			hnameformat = "hostname " + hostn + "\n"
@@ -347,8 +347,168 @@ def int_IPconf():
 				print(printout)
 
 
+
+def int_SHUT():
+	sshshell.send("do show ip int br\n")
+	print(Fore.MAGENTA+"Fetching table..")
+	print(Style.RESET_ALL)
+	for i in tqdm(range(10)):
+		time.sleep(.1)
+	output = sshshell.recv(65535)
+	printout = output.decode(encoding='UTF-8')
+	print(printout)
+	intchoice = input("Single(1) or multiple interfaces(2)? ")
+	if intchoice == (1):
+		switchPrompt = input("Enter interface: ")
+		switchINT = ('interface ') +  switchPrompt + "\n"
+		print("The interface shutting down is: " + switchPrompt + '\n')
+		sshshell.send(switchINT)
+		sshshell.send('shutdown\n')
+		time.sleep(1) #Wait to buffer
+	if intchoice == "2":
+		switchPrompt = input("Enter range: ")
+		switchINT = ('interface range ') +  switchPrompt + "\n"
+		print("The interfaces shutting down is: " + switchPrompt + '\n')
+		sshshell.send(switchINT)
+		sshshell.send('shutdown\n')
+		time.sleep(1) #Wait to buffer
+
+
+
+def trunk_conf():
+	
+	sshshell.send("do show ip int br\n")
+	print(Fore.MAGENTA+"Fetching table..")
+	print(Style.RESET_ALL)
+	for i in tqdm(range(10)):
+		time.sleep(.1)
+	output = sshshell.recv(65535)
+	printout = output.decode(encoding='UTF-8')
+	print(printout)
+
+	etherc = input("Make etherchannel? Y/N ") 
+	if etherc == "y":
+		erange = input("Enter interface range: ")
+		erangeformat = "int range " + erange + "\n"
+		sshshell.send(erangeformat)
+		protchoice = input("LACP(1) or PAgP(2) ")
+		if protchoice == "1": #LACP config
+			sshshell.send("shut\n")
+			time.sleep(1)
+			groupsel = input("Channel group number: ")
+			groupselformat = "channel-group " + groupsel + " mode active\n"
+			sshshell.send(groupselformat)
+			sshshell.send("no shut\n")
+			time.sleep(.5)
+			ethertrunk = input("Trunk interfaces? Y/N ")
+			if ethertrunk == "y":
+				sshshell.send("int po" + groupsel + "\n")
+				sshshell.send("switchport mode trunk\n")
+				nvlan = input("Native VLAN(number)for trunk: ")
+				nvlanformat = "switchport trunk native vlan " + nvlan + "\n"
+				sshshell.send(nvlanformat)
+				allowv = input('Allowed vlans(separate only with ",": ')
+				sshshell.send("switchport trunk allowed vlan " + allowv + "\n")
+				time.sleep(.5)
+			if ethertrunk == "n":
+				
+				return
+			else:
+				return
+
+			output = sshshell.recv(65535)
+			printout = output.decode(encoding='UTF-8')
+			print(printout)
+			print_file = output.decode(encoding='UTF-8')
+			file_save = open('output.txt', 'a+')
+			file_save.write('\n' + timeStamp + print_file + '\n')
+
+		if protchoice == "2": # PAgP config
+			sshshell.send("shut\n")
+			sshshell.send("shut\n")
+			time.sleep(1)
+			groupsel = input("Channel group number: ")
+			groupselformat = "channel-group " + groupsel + " mode desirable\n"
+			sshshell.send(groupselformat)
+			sshshell.send("no shut\n")
+			time.sleep(.5)
+			sshshell.send("no shut\n")
+			ethertrunk = input("Trunk interfaces? Y/N ")
+			if ethertrunk == "y":
+				sshshell.send("int po" + groupsel + "\n")
+				sshshell.send("switchport mode trunk\n")
+				nvlan = input("Native VLAN(number)for trunk: ")
+				nvlanformat = "switchport trunk native vlan " + nvlan + "\n"
+				sshshell.send(nvlanformat)
+				allowv = input('Allowed vlans(separate only with ",": ')
+				sshshell.send("switchport trunk allowed vlan " + allowv + "\n")
+				time.sleep(.5)
+			if ethertrunk == "n":
+				return
+			else:
+				return	
+
+			output = sshshell.recv(65535)
+			printout = output.decode(encoding='UTF-8')
+			print(printout)
+			print_file = output.decode(encoding='UTF-8')
+			file_save = open('output.txt', 'a+')
+			file_save.write('\n' + timeStamp + print_file + '\n')
+		
+		else:
+			return
+
+	else:
+		tchoice = input("Single(1) or multiple(2) interfaces? ")
+		if tchoice == "1":
+			trunki = input("Input single interface for trunk: ")
+			trunkiformat = "int " + trunki + "\n"
+			sshshell.send(trunkiformat)
+			sshshell.send("switchport mode trunk\n")
+			nvlan = input("Native VLAN(number)for trunk: ")
+			nvlanformat = "switchport trunk native vlan " + nvlan + "\n"
+			sshshell.send(nvlanformat)
+			allowv = input('Allowed vlans(separate only with ",": ')
+			sshshell.send("switchport trunk allowed vlan " + allowv + "\n")
+			sshshell.send("no shut\n")
+			time.sleep(.5)
+
+			output = sshshell.recv(65535)
+			printout = output.decode(encoding='UTF-8')
+			print(printout)
+			print_file = output.decode(encoding='UTF-8')
+			file_save = open('output.txt', 'a+')
+			file_save.write('\n' + timeStamp + print_file + '\n')
+			return
+		
+		if tchoice == "2":
+			mtrunki = input("Enter interface range: ")
+			mtrunkiformat = "int range " + mtrunki + "\n"
+			sshshell.send(mtrunkiformat)
+			sshshell.send("shut\n")
+			sshshell.send("switchport mode trunk\n")
+			mnvlan = input("Native VLAN(number) for trunk: ")
+			mnvlanformat = "switchport trunk native vlan " + mnvlan + "\n"
+			allowv = input('Allowed vlans(separate only with ",": ')
+			sshshell.send("switchport trunk allowed vlan " + allowv + "\n")
+			sshshell.send(mnvlanformat)
+			sshshell.send("no sh\n")
+			time.sleep(.5)
+
+			output = sshshell.recv(65535)
+			printout = output.decode(encoding='UTF-8')
+			print(printout)
+			print_file = output.decode(encoding='UTF-8')
+			file_save = open('output.txt', 'a+')
+			file_save.write('\n' + timeStamp + print_file + '\n')
+			return
+		else:
+			return
+
+
+
 #Creds
-servIP = "192.168.1.1"#input("IP: ")
+servIP = "192.168.1.2"#input("IP: ")
 usrname = "user"#input("Username: ")
 passwd = "cisco123"#getpass.getpass("Password: ")#input("Password: ")
 
@@ -392,6 +552,8 @@ config_list = {
 	'4': AAA,
 	'5': IProute,
 	'6': int_IPconf,
+	'7': trunk_conf,
+	'8': int_SHUT,
 	'i': int_table,
 	'r': r_table,
 	'c': run_conf,
@@ -405,6 +567,7 @@ config_list = {
 	'd': sh_dhcp,
 	'n': sh_ntp,
 	'h': hostnames,
+
 }
 
 
@@ -417,11 +580,12 @@ while True:
 	print(Fore.GREEN +"Pick a thing: Q or 'quit' to exit") 
 	print(Fore.CYAN +"1: Basic Settings     2: Port/Service Security 3: OSPF")
 	print(Fore.CYAN +"4: AAA                5: Routing               6: IP config")
+	print(Fore.CYAN +"7: Trunks & channels  8: Disable interfaces    H: Hostname")
 	print(Fore.CYAN +"I: Interface table    R: Routing table         C: Running-config" )
 	print(Fore.CYAN +"P: Routing Protocols  T: Show trunks           E: Show etherchannels")
 	print(Fore.CYAN +"V: Show vlans         O: OSPF neighbors        A: Arp table")
 	print(Fore.CYAN +"U: Show users         D: Show DHCP             N: Show NTP")
-	print(Fore.CYAN +"H: Hostname")
+	#print(Fore.CYAN +
 	print(Fore.YELLOW +"####################################################################")	
 	print(Style.RESET_ALL)
 
