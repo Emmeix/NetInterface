@@ -272,3 +272,85 @@ def trunk_conf():
 		#print_file = output.decode(encoding='UTF-8')
 		#file_save = open('output.txt', 'a+')
 		#file_save.write('\n' + timeStamp + print_file + '\n')
+
+
+def ospf_setup():
+		
+		sshshell.send("\n")
+		time.sleep(1)
+		open(".parsefile", 'w').close() #clear parsefile
+
+		output = sshshell.recv(2000000)
+		printout = output.decode(encoding='UTF-8')
+		print(printout)
+		print_file = output.decode(encoding='UTF-8')
+		file_save = open('output.txt', 'a+')
+		file_save.write('\n' + timeStamp + print_file + '\n')
+
+		ospfAS = input("OSPF AS number: ")
+		ospfformat = ("router ospf " + ospfAS)
+		sshshell.send(ospfformat)
+		sshshell.send('\n')
+		time.sleep(.5)
+
+		print()
+		print(Fore.YELLOW +"#######################################################") 
+		print(Fore.GREEN +"Pick a thing: Q or 'quit' to exit") 
+		print(Fore.CYAN +"1: Interface Table         2: Routing Table")
+		print(Fore.CYAN +"3: OSPF show commands      4: Set OSPF neighbor")
+		print(Fore.CYAN +"5: Set Default origination 6: Set Router ID")
+		print(Fore.CYAN +"7: Set stub area           8: Network Statements")
+		print(Fore.YELLOW +"#######################################################")	
+		print(Style.RESET_ALL)
+		
+		output = sshshell.recv(65535)
+		printout = output.decode(encoding='UTF-8')
+		
+		
+		while True:
+			print(printout +'\n')
+			ospfNav = input("OSPF# ")
+			if ospfNav == 'quit' or ospfNav == 'q':
+				break		
+			if ospfNav == "1":
+				sshshell.send("do show ip int br\n")
+				time.sleep(.5)
+			if ospfNav == "2":
+				sshshell.send("do show ip route\n")
+				time.sleep(.5)
+			if ospfNav == "3":
+				sshshell.send(ospf_neigh)
+			if ospfNav == "4":
+				ospfneigh = input("Enter IP of OSPF neighbor: ")
+				ospfPrio = input("Enter priority of said neighbor: ")
+				ospfSEND1 = 'neighbor ' + ospfneigh + ' priority ' + ospfPrio + "\n"
+				sshshell.send(ospfSEND1)
+				time.sleep(.5)
+			if ospfNav == "5":
+				ospfQ = input("Set to always advertise default route? (Y/N)")
+				if ospfQ == "y":
+					sshshell.send('default-information originate always\n')
+					time.sleep(.5)
+				if ospfQ == "n":
+					break
+			if ospfNav == "6":
+				ospfID = input("Please choose your router ID in IPv4 format: ")
+				ospfSEND2 = 'router-id ' + ospfID + "\n"
+				sshshell.send(ospfSEND2)
+				time.sleep(.5)
+			if ospfNav == "7":
+				ospfSTUB = input("Please enter OSPF area to become Stub-area: ")
+				ospfSEND3 = 'area ' + ospfSTUB + ' stub no-summary' + '\n'
+				sshshell.send(ospfSEND3)
+				time.sleep(.5)
+			if ospfNav == "7":
+				ospfNET = input("Enter network to be advertised: ")
+				ospfAREA = input("Enter area of said network to be advertised: ")
+				ospfMASK = input("Enter wildcard mask for the network: ")
+				ospfSEND = 'network ' + ospfNET + ospfMASK ' area ' + ospfAREA + '\n'
+				sshshell.send(ospfSEND)
+
+			
+			time.sleep(.5)	
+			output = sshshell.recv(65535)
+			printout = output.decode(encoding='UTF-8')
