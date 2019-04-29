@@ -19,9 +19,12 @@ timeStamp=time.strftime("%a %H:%M:%S \n", tl)
 
 def int_table():
 	sshshell.send("do show ip int br\n")
-
+	print(Fore.MAGENTA +"Fetching table...")
+	print(Style.RESET_ALL)
+	for i in tqdm(range(30)):
+		time.sleep(.1)
 def r_table():
-	sshshell.send("do show ip route\n")
+	sshshell.send("do show ip route | begin Gateway\n")
 
 def run_conf():
 	sshshell.send("do show run\n")
@@ -56,6 +59,10 @@ def sh_dhcp():
 def sh_ntp():
 	sshshell.send("do show ntp status\n")
 	sshshell.send("do show ntp asso\n")
+	time.sleep(.2)
+	output = sshshell.recv(65535)
+	printout = output.decode(encoding='UTF-8')
+	print(printout)
 
 def hostnames():
 	hostn = input("What hostname for the device do you wish to set? ")
@@ -87,14 +94,14 @@ def basic_config():
 				printout = output.decode(encoding='UTF-8')
 				print(printout)
 				while True:
-					interfaceQ = input("Enter the interface you want to configure (q) to quit: ")
+					interfaceQ = input("Enter the interface, (q) to quit: ")
 					if interfaceQ == "q":
 						break
 					else:
 						interfaceA = "interface " + interfaceQ + "\n"
 						sshshell.send(interfaceA)
 
-						ipQ = input("Enter wanted IP address with a proper netmask: ")
+						ipQ = input("Enter IP address with a proper netmask: ")
 						ipA = 'ip address ' + ipQ + "\n"
 						sshshell.send(ipA)
 						sshshell.send("no sh\n")
@@ -208,37 +215,118 @@ def ospf_setup():
 		file_save.write('\n' + timeStamp + print_file + '\n')
 
 		ospfAS = input("OSPF AS number: ")
-		ospfformat = ("router ospf " + ospfAS)
+		ospfformat = ("router ospf " + ospfAS + '\n')
 		sshshell.send(ospfformat)
-		sshshell.send('\n')
-		time.sleep(.5)
-
-		print()
-		print(Fore.YELLOW +"#######################################################") 
-		print(Fore.GREEN +"Pick a thing: Q or 'quit' to exit") 
-		print(Fore.CYAN +"1: Interface Table 2: Routing Table")
-		print(Fore.YELLOW +"#######################################################")	
-		print(Style.RESET_ALL)
-		
+		time.sleep(.3)
 		output = sshshell.recv(65535)
 		printout = output.decode(encoding='UTF-8')
+		print(printout)
 		
 		
 		while True:
-			print(printout +'\n')
+			print()
+			print(Fore.YELLOW +"#######################################################") 
+			print(Fore.GREEN +"Pick a thing: Q or 'quit' to exit") 
+			print(Fore.CYAN +"1: Interface Table         2: Routing Table")
+			print(Fore.CYAN +"3: OSPF show commands      4: Set OSPF neighbor")
+			print(Fore.CYAN +"5: Set Default origination 6: Set Router ID")
+			print(Fore.CYAN +"7: Set stub area           8: Network Statements")
+			print(Fore.YELLOW +"#######################################################")	
+			print(Style.RESET_ALL)
+				#print(printout +'\n')
 			ospfNav = input("OSPF# ")
 			if ospfNav == 'quit' or ospfNav == 'q':
 				break		
 			if ospfNav == "1":
 				sshshell.send("do show ip int br\n")
-				time.sleep(.5)
+				time.sleep(.3)
+				output = sshshell.recv(65535)
+				printout = output.decode(encoding='UTF-8')
+				print(printout)
 			if ospfNav == "2":
-				sshshell.send("do show ip route\n")
+				sshshell.send("do show ip route | begin Gateway\n")
+
+				time.sleep(.3)
+				output = sshshell.recv(65535)
+				printout = output.decode(encoding='UTF-8')
+				print(printout)
+			if ospfNav == "3":
+				sshshell.send("do show ospf neigh\n")
+				sshshell.send("do show ospf database\n")
 				time.sleep(.5)
+				output = sshshell.recv(65535)
+				printout = output.decode(encoding='UTF-8')
+				print(printout)
+			if ospfNav == "4":
+				sshshell.send('do show ip route | begin Gateway\n')
+				
+				time.sleep(.3)				
+				output = sshshell.recv(65535)
+				printout = output.decode(encoding='UTF-8')
+				print(printout)
+				
+				ospfneigh = input("Enter IP of OSPF neighbor: ")
+				ospfPrio = input("Enter priority of neighbor [0-255](Default: 1): ")
+				ospfSEND1 = 'neighbor ' + ospfneigh + ' priority ' + ospfPrio + "\n"
+				sshshell.send(ospfSEND1)
+
+				time.sleep(.3)				
+				output = sshshell.recv(65535)
+				printout = output.decode(encoding='UTF-8')
+				print(printout)
+			if ospfNav == "5":
+				ospfQ = input("Set to always advertise default route? (Y/N) " )
+				if ospfQ == "y":
+					sshshell.send('default-information originate always\n')
+					time.sleep(.3)
+
+					output = sshshell.recv(65535)
+					printout = output.decode(encoding='UTF-8')
+					print(printout)
+				if ospfQ == "n":
+					sshshell.send('default-information originate\n')
+					time.sleep(.2)
+					output = sshshell.recv(65535)
+					printout = output.decode(encoding='UTF-8')
+					print(printout)
+			if ospfNav == "6":
+				ospfID = input("Please choose your router ID in IPv4 format: ")
+				ospfSEND2 = 'router-id ' + ospfID + "\n"
+				sshshell.send(ospfSEND2)
+
+				time.sleep(.3)				
+				output = sshshell.recv(65535)
+				printout = output.decode(encoding='UTF-8')
+				print(printout)
+			if ospfNav == "7":
+				ospfSTUB = input("Please enter OSPF area number to become Stub-area: ")
+				ospfSEND3 = 'area ' + ospfSTUB + ' stub no-summary' + '\n'
+				sshshell.send(ospfSEND3)
+				time.sleep(.3)				
+				output = sshshell.recv(65535)
+				printout = output.decode(encoding='UTF-8')
+				print(printout)
+			if ospfNav == "8":
+				sshshell.send('do show ip route | begin Gateway\n')
+				time.sleep(.3)
+				output = sshshell.recv(65535)
+				printout = output.decode(encoding='UTF-8')
+				print(printout)
+
+				ospfNET = input("Enter network ip: ")
+				ospfMASK = input("Enter wildcard mask: ")
+				ospfAREA = input("Enter area number: ")
+				ospfSEND = "network " + ospfNET + " " + ospfMASK + " area " + ospfAREA + "\n"
+				sshshell.send(ospfSEND)
+				time.sleep(.3)
+				output = sshshell.recv(65535)
+				printout = output.decode(encoding='UTF-8')
+				print(printout)
+
 			
-			time.sleep(.5)	
-			output = sshshell.recv(65535)
-			printout = output.decode(encoding='UTF-8')
+			#time.sleep(.5)	
+			#output = sshshell.recv(65535)
+			#printout = output.decode(encoding='UTF-8')
 
 def AAA():
 		
@@ -346,8 +434,6 @@ def int_IPconf():
 				printout = output.decode(encoding='UTF-8')
 				print(printout)
 
-
-
 def int_SHUT():
 	sshshell.send("do show ip int br\n")
 	print(Fore.MAGENTA+"Fetching table..")
@@ -358,7 +444,7 @@ def int_SHUT():
 	printout = output.decode(encoding='UTF-8')
 	print(printout)
 	intchoice = input("Single(1) or multiple interfaces(2)? ")
-	if intchoice == (1):
+	if intchoice == "1":
 		switchPrompt = input("Enter interface: ")
 		switchINT = ('interface ') +  switchPrompt + "\n"
 		print("The interface shutting down is: " + switchPrompt + '\n')
@@ -372,8 +458,6 @@ def int_SHUT():
 		sshshell.send(switchINT)
 		sshshell.send('shutdown\n')
 		time.sleep(1) #Wait to buffer
-
-
 
 def trunk_conf():
 	
@@ -510,7 +594,7 @@ def trunk_conf():
 #Creds
 servIP = "192.168.1.2"#input("IP: ")
 usrname = "user"#input("Username: ")
-passwd = "cisco123"#getpass.getpass("Password: ")#input("Password: ")
+passwd = "cisco123 "#getpass.getpass("Password: ")#input("Password: ")
 
 #SSH
 ssh = paramiko.SSHClient()
@@ -604,7 +688,7 @@ while True:
 	output = sshshell.recv(65535)
 	printout = output.decode(encoding='UTF-8')
 	print(printout)
-
+	time.sleep(.2)
 	#Save output to file
 	print_file = output.decode(encoding='UTF-8')
 	file_save = open('output.txt', 'a+')
