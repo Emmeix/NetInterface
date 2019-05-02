@@ -156,10 +156,11 @@ def service_security():
 					if "down" in line:
 						intlist.append(line.split(' ', 1)[0])
 						intout = ("Interface " + intlist[incr])
-						time.sleep(.2)
+						time.sleep(.3)
 						print(intout)
 						sshshell.send(str(intout))
 						sshshell.send('\n')
+						sshshell.send('switchport mode access\n')
 						sshshell.send('switchport port-security\n')
 						sshshell.send('switchport port-security mac-address sticky\n')
 						sshshell.send('switchport port-security maximum 2\n')					    							
@@ -186,13 +187,14 @@ def service_security():
 		print(Fore.MAGENTA + "Shuting down processes...")
 		print(Style.RESET_ALL)
 		sshshell.send('no cdp run\n')
-		sshshell.send('no ip bootp server\n')
+		#sshshell.send('no ip bootp server\n')
 		sshshell.send('no ip arp proxy\n')
 		sshshell.send('no ip http server\n')
 		sshshell.send('no ip icmp redirect\n')
 		sshshell.send('do show ip int br\n')
-		time.sleep(1) #Wait for buffer
-
+		#time.sleep(1) #Wait for buffer
+		for i in tqdm(range(10)):
+			time.sleep(.1)
 
 def ospf_setup():
 		
