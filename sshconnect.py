@@ -192,14 +192,7 @@ def service_security():
 		sshshell.send('no ip icmp redirect\n')
 		sshshell.send('do show ip int br\n')
 		time.sleep(1) #Wait for buffer
-		
-		#output = sshshell.recv(65535)
-		#printout = output.decode(encoding='UTF-8')
-		#print(printout)
-		
-		#print_file = output.decode(encoding='UTF-8')
-		#file_save = open('output.txt', 'a+')
-		#file_save.write('\n' + timeStamp + print_file + '\n')
+
 
 def ospf_setup():
 		
@@ -233,7 +226,7 @@ def ospf_setup():
 			print(Fore.CYAN +"7: Set stub area           8: Network Statements")
 			print(Fore.YELLOW +"#######################################################")	
 			print(Style.RESET_ALL)
-				#print(printout +'\n')
+
 			ospfNav = input("OSPF# ")
 			if ospfNav == 'quit' or ospfNav == 'q':
 				break		
@@ -324,13 +317,8 @@ def ospf_setup():
 				print(printout)
 
 			
-			#time.sleep(.5)	
-			#output = sshshell.recv(65535)
-			#printout = output.decode(encoding='UTF-8')
-
 def AAA():
 		
-		#printout = output.decode(encoding='UTF-8')
 		print("###Setup for AAA with radius authentication###")
 		print("\n")
 		aaaQ = input("Add username /w encrypted password, Y/N? ")
@@ -378,8 +366,6 @@ def AAA():
 		print(printout)
 
 def IProute():
-		#output = sshshell.recv(65535)
-		#printout = output.decode(encoding='UTF-8')
 		
 		print()
 		print(Fore.YELLOW +"#######################################################") 
@@ -592,9 +578,9 @@ def trunk_conf():
 
 
 #Creds
-servIP = "192.168.1.2"#input("IP: ")
-usrname = "user"#input("Username: ")
-passwd = "cisco123 "#getpass.getpass("Password: ")#input("Password: ")
+servIP = input("IP: ")
+usrname = input("Username: ")
+passwd = getpass.getpass("Password: ")
 
 #SSH
 ssh = paramiko.SSHClient()
