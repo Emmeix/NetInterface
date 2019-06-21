@@ -7,6 +7,8 @@ School project to auto configure a cisco device with python
 
 A command line interface for network devices, cisco routers and switches specifically
 
+Made with python mainly using the Parimiko SSH library
+
 
 ![Main interface](https://i.imgur.com/IEQZ7tg.png?1)
 
